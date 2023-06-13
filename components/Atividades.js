@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable react/react-in-jsx-scope */
 // Criar aplicativo expo que registra atividades esportivas e que ajude a acompanhar o progresso do usuário e treinos.
 // Registra atividades esportivas  
 
@@ -9,91 +11,63 @@ import {
   Button,
   FlatList,
   Text
-} from "react-native-web";
-import * as SQLite from 'expo-sqlite';
+} from "react-native";
+
+import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
+import database from '../config/firebaseconfig';
+import { useEffect } from "react";
+import { addDoc } from "firebase/firestore";
   
-
-
 export default function Atividades() {
 
-  // persistir dados no sqlite
-  const db = SQLite.openDatabase('database.db');
+  const [atividades, setAtividades] = useState([]);
+  // carregar atividades do firebase
+  useEffect(() => {
+    const loadAtividades = async () => {
+    const db = getFirestore();
+    const atividadesCol = collection(db, 'atividades');
+    const atividadesSnapshot = await getDocs(atividadesCol);
+    const atividadesList = atividadesSnapshot.docs.map(doc => doc.data());
+    setAtividades(atividadesList);
+    }
+    loadAtividades();
+  }, []);
 
-  const criarTabela = () => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS atividades (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, tempo INTEGER, data TEXT);',
-        [],
-        (_, result) => {
-          console.log('Tabela criada com sucesso!');
-        },
-        (_, error) => {
-          console.log('Erro ao criar tabela:', error);
-        }
-      );
-    });
-  };
+  // adiciona atividade no firebase
+  const [nome, setNome] = useState('');
+  const [percurso, setPercurso] = useState('');
+  const [tempo_min, setTempo_min] = useState('');
+  
+  
+  // adiciona atividade no firebase e atualiza a lista
+  const adicionarAtividade = async () => {
+    const db = getFirestore();
+    const atividadesCol = collection(db, 'atividades');
+    const payload = { nome, percurso, tempo_min };
 
-  // criar tabela somente se não existir
-  if (!db){
-    criarTabela();
+    const docRef = await addDoc(atividadesCol, payload);
+    const newAtividade = { ...payload, id: docRef.id };
+    setAtividades([...atividades, newAtividade]);
   }
 
-  // Chame a função criarTabela em algum ponto do seu código para criar a tabela no banco de dados.
+  // remove atividade do firebase e atualiza a lista
+  const removerAtividade = async (id) => {
+    const db = getFirestore();
+    const atividadesCol = collection(db, 'atividades');
+    await atividadesCol.doc(id).delete();
+    const newAtividades = atividades.filter(atividade => atividade.id !== id);
+    setAtividades(newAtividades);
+  }
 
-  const escreverDados = (atividades) => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        'INSERT INTO atividades (nome, tempo, data) VALUES (?, ?, ?);',
-        [atividades.nome, atividades.tempo, atividades.data],
-        (_, result) => {
-          console.log('Dados salvos com sucesso!');
-        },
-        (_, error) => {
-          console.log('Erro ao salvar dados:', error);
-        }
-      );
-    });
-  };
 
-  const lerDados = () => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        'SELECT * FROM atividades;',
-        [],
-        (_, { rows: { _array } }) => {
-          console.log('Dados lidos com sucesso!');
-          return _array;
-        },
-        (_, error) => {
-          console.log('Erro ao ler dados:', error);
-          return [];
-        }
-      );
-    });
-  };
 
-  // Inicialize as atividades lendo do arquivo JSON
-  const [atividades, setAtividades] = useState(lerDados());
-  const [nome, setNome] = useState('');
-  const [tempo, setTempo] = useState(0);
-  const [data, setData] = useState('');
-
-  const adicionarAtividade = () => {
-    const novaAtividade = { id: Math.random(), nome, tempo, data };
-    const novasAtividades = Array.isArray(atividades) ? [...atividades, novaAtividade] : [novaAtividade];
-    setAtividades(novasAtividades);
-    escreverDados(novasAtividades); // Grava as atividades no arquivo JSON
-  };
-
-  const removerAtividade = (id) => {
-    const novasAtividades = Array.isArray(atividades) ? atividades.filter((atividade) => atividade.id !== id) : [];
-    setAtividades(novasAtividades);
-    escreverDados(novasAtividades); // Grava as atividades no arquivo JSON
-  };
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.titulo}>Atividades</Text>
+        <Text style={styles.subtitulo}>Registre suas atividades</Text>
+      </View>
       <View style={styles.form}>
         <TextInput
           style={styles.input}
@@ -103,28 +77,34 @@ export default function Atividades() {
         />
         <TextInput
           style={styles.input}
-          placeholder="Tempo (minutos)"
-          onChangeText={(text) => setTempo(text)}
-          value={tempo}
+          placeholder="Percurso em minutos"
+          keyboardType="numeric"
+          onChangeText={(text) => setPercurso(Number(text))}
+          value={percurso}
         />
         <TextInput
           style={styles.input}
-          placeholder="Data (dd/mm/aaaa)"
-          onChangeText={(text) => setData(text)}
-          value={data}
+          placeholder="Tempo em minutos"
+          keyboardType="numeric"
+          onChangeText={(text) => setTempo_min(Number(text))}
+          value={tempo_min}
         />
-        <View style={styles.botao}>
-          <Button title="Adicionar" onPress={adicionarAtividade} />
-        </View>
+        <Button
+          style={styles.botao}
+          title="Adicionar"
+          onPress={adicionarAtividade}
+        />
       </View>
+    
+
       <View style={styles.lista}>
         <FlatList
           data={atividades}
           renderItem={({ item }) => (
             <View style={styles.item}>
               <Text style={styles.itemText}>{item.nome}</Text>
-              <Text style={styles.itemText}>{item.tempo} minutos</Text>
-              <Text style={styles.itemText}>{item.data}</Text>
+              <Text style={styles.itemText}>{item.percurso} minutos</Text>
+              <Text style={styles.itemText}>{item.tempo_min}</Text>
               <Button
                 title="Remover"
                 onPress={() => removerAtividade(item.id)}

@@ -1,20 +1,14 @@
-import { StyleSheet } from "react-native-web";
+/* eslint-disable react/react-in-jsx-scope */
 import { View } from "react-native-web";
 import {
-    LineChart,
-    BarChart,
-    PieChart,
-    ProgressChart,
-    ContributionGraph,
-    StackedBarChart
-  } from "react-native-chart-kit";
+    LineChart  } from "react-native-chart-kit";
 import { useState } from "react";
 import { Dimensions } from "react-native";
-import { Picker } from "react-native-web";
 import { Select, Center, CheckIcon, Text } from "native-base";
 
 
 export default function Desempenho() {
+  // eslint-disable-next-line no-unused-vars
   const [atividades, setAtividades] = useState([
       { id: 1, nome: "Corrida", tempo: 30, percurso: 5, data: "2021-07-01" },
       { id: 2, nome: "Natação", tempo: 60, percurso: 1, data: "2021-07-02" },
@@ -22,7 +16,7 @@ export default function Desempenho() {
   ]);
 
   const [selectedValue, setSelectedValue] = useState("Corrida");
-  const [service, setService] = useState("");
+  //const [service, setService] = useState("");
 
   return (
     <View>
