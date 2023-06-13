@@ -2,21 +2,31 @@
 import { View } from "react-native-web";
 import {
     LineChart  } from "react-native-chart-kit";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dimensions } from "react-native";
 import { Select, Center, CheckIcon, Text } from "native-base";
+import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore/lite';
 
 
 export default function Desempenho() {
   // eslint-disable-next-line no-unused-vars
-  const [atividades, setAtividades] = useState([
-      { id: 1, nome: "Corrida", tempo: 30, percurso: 5, data: "2021-07-01" },
-      { id: 2, nome: "Natação", tempo: 60, percurso: 1, data: "2021-07-02" },
-      { id: 3, nome: "Caminhada", tempo: 45, percurso: 3 , data: "2021-07-03"},
-  ]);
+  const [atividades, setAtividades] = useState([]);
 
   const [selectedValue, setSelectedValue] = useState("Corrida");
-  //const [service, setService] = useState("");
+  
+  // buscar dados no firebase com base em selectedValue 
+
+  useEffect(() => {
+    const loadAtividades = async () => {
+      const db = getFirestore();
+      const atividadesCol = collection(db, 'atividades');
+      const q = query(atividadesCol, where("nome", "==", selectedValue));
+      const atividadesSnapshot = await getDocs(q);
+      const atividadesList = atividadesSnapshot.docs.map(doc => doc.data());
+      setAtividades(atividadesList);
+    }
+    loadAtividades();
+  }, [selectedValue]);
 
   return (
     <View>
@@ -34,12 +44,15 @@ export default function Desempenho() {
         <Text>Tempo Gasto</Text>
         <LineChart
           data={{
-            labels: atividades.map((atividade) => atividade.data),
+            // condigurar dados do gráfico
+            labels: atividades.map((atividade) => atividade.id),
+
             datasets: [
               {
-              data: atividades.map((atividade) => atividade.tempo)
-              }
-            ]
+                data: atividades.map((atividade) => atividade.tempo_min),
+              },
+            ],
+
             }}
             width={Dimensions.get("window").width} // from react-native
             height={220}
