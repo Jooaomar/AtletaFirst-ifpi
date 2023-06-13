@@ -6,17 +6,23 @@
 import { useState } from "react";
 import { 
   View, 
-  StyleSheet, 
-  TextInput, 
+  StyleSheet,
   Button,
   FlatList,
   Text
 } from "react-native";
 
-import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
-import database from '../config/firebaseconfig';
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore/lite';
 import { useEffect } from "react";
-import { addDoc } from "firebase/firestore";
+import { Input } from "native-base";
+import { getFirebaseConfig } from "../config/firebaseconfig";
+import {initializeApp} from "firebase/app";
+import DatePicker from 'react-native-datepicker';
+
+
+
+const firebaseAppConfig = getFirebaseConfig();
+initializeApp(firebaseAppConfig);
   
 export default function Atividades() {
 
@@ -24,11 +30,11 @@ export default function Atividades() {
   // carregar atividades do firebase
   useEffect(() => {
     const loadAtividades = async () => {
-    const db = getFirestore();
-    const atividadesCol = collection(db, 'atividades');
-    const atividadesSnapshot = await getDocs(atividadesCol);
-    const atividadesList = atividadesSnapshot.docs.map(doc => doc.data());
-    setAtividades(atividadesList);
+      const db = getFirestore();
+      const atividadesCol = collection(db, 'atividades');
+      const atividadesSnapshot = await getDocs(atividadesCol);
+      const atividadesList = atividadesSnapshot.docs.map(doc => doc.data());
+      setAtividades(atividadesList);
     }
     loadAtividades();
   }, []);
@@ -38,57 +44,78 @@ export default function Atividades() {
   const [percurso, setPercurso] = useState('');
   const [tempo_min, setTempo_min] = useState('');
   
-  
+
   // adiciona atividade no firebase e atualiza a lista
   const adicionarAtividade = async () => {
-    const db = getFirestore();
-    const atividadesCol = collection(db, 'atividades');
-    const payload = { nome, percurso, tempo_min };
-
-    const docRef = await addDoc(atividadesCol, payload);
-    const newAtividade = { ...payload, id: docRef.id };
-    setAtividades([...atividades, newAtividade]);
+    try {
+      const db = getFirestore();
+      const atividadesCol = collection(db, 'atividades');
+      const novoDocumentoRef = doc(atividadesCol); // Cria uma referência a um novo documento
+      // formatar type de dados para envio ao firebase
+      const payload = {
+        id: novoDocumentoRef.id,
+        nome: nome,
+        percurso: Number(percurso),
+        tempo_min: Number(tempo_min),
+        data: new Date()
+      }
+      await addDoc(atividadesCol, payload);
+      // atualizar componente
+      const atividadesAtualizadas = [...atividades, payload];
+      setAtividades(atividadesAtualizadas);
+      // limpar campos
+      setNome('');
+      setPercurso('');
+      setTempo_min('');
+      setData('');
+    }
+    catch (err) {
+      console.log(err);
+    }
   }
 
-  // remove atividade do firebase e atualiza a lista
+  // remover atividade pelo id
   const removerAtividade = async (id) => {
-    const db = getFirestore();
-    const atividadesCol = collection(db, 'atividades');
-    await atividadesCol.doc(id).delete();
-    const newAtividades = atividades.filter(atividade => atividade.id !== id);
-    setAtividades(newAtividades);
+    try {
+      const db = getFirestore();
+      const atividadesCol = collection(db, 'atividades');
+      const q = query(atividadesCol, where("id", "==", id));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        deleteDoc(doc.ref);
+      });
+      // atualizar componente
+      const atividadesAtualizadas = atividades.filter(atividade => atividade.id !== id);
+      setAtividades(atividadesAtualizadas);
+    }
+    catch (err) {
+      console.log(err);
+    }
   }
 
-
+  
+  
 
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.titulo}>Atividades</Text>
-        <Text style={styles.subtitulo}>Registre suas atividades</Text>
-      </View>
       <View style={styles.form}>
-        <TextInput
-          style={styles.input}
+        <Input
           placeholder="Nome da atividade"
-          onChangeText={(text) => setNome(text)}
+          onChangeText={setNome}
           value={nome}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Percurso em minutos"
-          keyboardType="numeric"
-          onChangeText={(text) => setPercurso(Number(text))}
+        <Input
+          placeholder="Percurso em metros"
+          onChangeText={setPercurso}
           value={percurso}
         />
-        <TextInput
-          style={styles.input}
+        <Input
           placeholder="Tempo em minutos"
-          keyboardType="numeric"
-          onChangeText={(text) => setTempo_min(Number(text))}
+          onChangeText={setTempo_min}
           value={tempo_min}
         />
+
         <Button
           style={styles.botao}
           title="Adicionar"
@@ -102,9 +129,9 @@ export default function Atividades() {
           data={atividades}
           renderItem={({ item }) => (
             <View style={styles.item}>
-              <Text style={styles.itemText}>{item.nome}</Text>
-              <Text style={styles.itemText}>{item.percurso} minutos</Text>
-              <Text style={styles.itemText}>{item.tempo_min}</Text>
+              <Text style={styles.itemText}>Praticou: {item.nome}</Text>
+              <Text style={styles.itemText}>Correu: {item.percurso} metros</Text>
+              <Text style={styles.itemText}>Tempo: {item.tempo_min} minutos</Text>
               <Button
                 title="Remover"
                 onPress={() => removerAtividade(item.id)}

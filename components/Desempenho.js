@@ -31,7 +31,7 @@ export default function Desempenho() {
       </Select>
 
       <Center>
-        <Text>Tempo</Text>
+        <Text>Tempo Gasto</Text>
         <LineChart
           data={{
             labels: atividades.map((atividade) => atividade.data),
