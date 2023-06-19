@@ -17,6 +17,8 @@ export default function Desempenho() {
   // total de tempo gasto em cada atividade
   const [totalTempo, setTotalTempo] = useState(0);
 
+  const [percurso, setPercurso] = useState(0);
+
   // buscar dados no firebase com base em selectedValue 
 
   useEffect(() => {
@@ -37,6 +39,7 @@ export default function Desempenho() {
 
   useEffect(() => {
     totalTempoGasto();
+    totalPercurso();
   }, [atividades]); // atualiza quando atividades muda
 
   // função que recebe date = Timestamp(seconds,nanoseconds) formatar para dia/mes/ano
@@ -54,6 +57,15 @@ export default function Desempenho() {
       total += atividade.tempo_min;
     });
     setTotalTempo(total);
+  }
+
+  // calcula total de percurso
+  function totalPercurso() {
+    let total = 0;
+    atividades.forEach((atividade) => {
+      total += atividade.percurso;
+    });
+    setPercurso(total);
   }
 
   return (
@@ -112,6 +124,7 @@ export default function Desempenho() {
         />
 
         <Text>Percurso (metros)</Text>
+        <Text>Total {percurso}</Text>
         <LineChart
           data={{
             // condigurar dados do gráfico

@@ -14,7 +14,7 @@ import {
 
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore/lite';
 import { useEffect } from "react";
-import { Input } from "native-base";
+import { Input, CheckIcon, Select } from "native-base";
 import { getFirebaseConfig } from "../config/firebaseconfig";
 import {initializeApp} from "firebase/app";
 import DatePicker from 'react-native-datepicker';
@@ -92,18 +92,22 @@ export default function Atividades() {
     }
   }
 
-  
-  
-
-
   return (
     <View style={styles.container}>
       <View style={styles.form}>
-        <Input
+        <Select minWidth="200" accessibilityLabel="Visualizar modalidade" placeholder="Visualizar modalidade" _selectedItem={{
+          bg: "teal.600",
+          endIcon: <CheckIcon size="3" />
+        }} mt={1} onValueChange={nome => setNome(nome)}>
+            <Select.Item label="Caminhada" value="Caminhada" />
+            <Select.Item label="Natação" value="Natação" />
+            <Select.Item label="Futebol" value="Futebol" />
+        </Select>
+        {/* <Input
           placeholder="Nome da atividade"
           onChangeText={setNome}
           value={nome}
-        />
+        /> */}
         <Input
           placeholder="Percurso em metros"
           onChangeText={setPercurso}
