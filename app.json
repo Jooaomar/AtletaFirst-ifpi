@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "AtletaFirst",
-    "slug": "AtletaFirst",
+    "slug": "atletaone",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,10 +21,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.jmrcl91.atletaone"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "65ce3862-fb16-4639-8c73-5ed51c9789dd"
+      }
+    },
+    "owner": "jmrcl91"
   }
 }

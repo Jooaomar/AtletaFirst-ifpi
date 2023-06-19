@@ -20,7 +20,6 @@ import {initializeApp} from "firebase/app";
 import DatePicker from 'react-native-datepicker';
 
 
-
 const firebaseAppConfig = getFirebaseConfig();
 initializeApp(firebaseAppConfig);
   
