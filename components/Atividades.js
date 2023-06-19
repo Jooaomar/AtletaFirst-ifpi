@@ -14,7 +14,7 @@ import {
 
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore/lite';
 import { useEffect } from "react";
-import { Input, CheckIcon, Select } from "native-base";
+import { Input, CheckIcon, Select, TextArea } from "native-base";
 import { getFirebaseConfig } from "../config/firebaseconfig";
 import {initializeApp} from "firebase/app";
 import DatePicker from 'react-native-datepicker';
@@ -42,6 +42,9 @@ export default function Atividades() {
   const [nome, setNome] = useState('');
   const [percurso, setPercurso] = useState('');
   const [tempo_min, setTempo_min] = useState('');
+  const [intensidade, setIntensidade] = useState('');
+  const [calorias, setCalorias] = useState('');
+
   
 
   // adiciona atividade no firebase e atualiza a lista
@@ -115,6 +118,20 @@ export default function Atividades() {
           value={tempo_min}
         />
 
+        <Input
+          placeholder="Intensidade de 1 a 5"
+          onChangeText={setIntensidade}
+          value={intensidade}
+        />
+
+        <Input
+          placeholder="Calorias"
+          onChangeText={setCalorias}
+          value={calorias}
+        />
+
+        <TextArea h={20} placeholder="Anotações"  maxW="600" />
+
         <Button
           style={styles.botao}
           title="Adicionar"
@@ -129,7 +146,7 @@ export default function Atividades() {
           renderItem={({ item }) => (
             <View style={styles.item}>
               <Text style={styles.itemText}>Praticou: {item.nome}</Text>
-              <Text style={styles.itemText}>Correu: {item.percurso} metros</Text>
+              <Text style={styles.itemText}>Percurso: {item.percurso} metros</Text>
               <Text style={styles.itemText}>Tempo: {item.tempo_min} minutos</Text>
               <Text style={styles.itemText}>Data: {item.data.toDate().toLocaleDateString()}</Text>
               <Button
