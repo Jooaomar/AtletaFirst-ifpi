@@ -95,19 +95,15 @@ export default function Atividades() {
   return (
     <View style={styles.container}>
       <View style={styles.form}>
-        <Select minWidth="200" accessibilityLabel="Visualizar modalidade" placeholder="Visualizar modalidade" _selectedItem={{
+        <Select minWidth="200" accessibilityLabel="Tipo de modalidade" placeholder="Tipo de modalidade" _selectedItem={{
           bg: "teal.600",
           endIcon: <CheckIcon size="3" />
         }} mt={1} onValueChange={nome => setNome(nome)}>
             <Select.Item label="Caminhada" value="Caminhada" />
+            <Select.Item label="Corrida" value="Corrida" />
             <Select.Item label="Natação" value="Natação" />
             <Select.Item label="Futebol" value="Futebol" />
         </Select>
-        {/* <Input
-          placeholder="Nome da atividade"
-          onChangeText={setNome}
-          value={nome}
-        /> */}
         <Input
           placeholder="Percurso em metros"
           onChangeText={setPercurso}
@@ -135,6 +131,7 @@ export default function Atividades() {
               <Text style={styles.itemText}>Praticou: {item.nome}</Text>
               <Text style={styles.itemText}>Correu: {item.percurso} metros</Text>
               <Text style={styles.itemText}>Tempo: {item.tempo_min} minutos</Text>
+              <Text style={styles.itemText}>Data: {item.data.toDate().toLocaleDateString()}</Text>
               <Button
                 title="Remover"
                 onPress={() => removerAtividade(item.id)}
