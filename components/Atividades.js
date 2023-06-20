@@ -9,15 +9,15 @@ import {
   StyleSheet,
   Button,
   FlatList,
-  Text
 } from "react-native";
 
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore/lite';
 import { useEffect } from "react";
-import { Input, CheckIcon, Select, TextArea } from "native-base";
+import { Input, CheckIcon, Select, TextArea, Text } from "native-base";
 import { getFirebaseConfig } from "../config/firebaseconfig";
 import {initializeApp} from "firebase/app";
-import DatePicker from 'react-native-datepicker';
+import { set } from "react-native-reanimated";
+
 
 
 const firebaseAppConfig = getFirebaseConfig();
@@ -44,6 +44,8 @@ export default function Atividades() {
   const [tempo_min, setTempo_min] = useState('');
   const [intensidade, setIntensidade] = useState('');
   const [calorias, setCalorias] = useState('');
+  const [anotacoes, setAnotacoes] = useState('');
+  const [data, setData] = useState(new Date());
 
   
 
@@ -59,7 +61,10 @@ export default function Atividades() {
         nome: nome,
         percurso: Number(percurso),
         tempo_min: Number(tempo_min),
-        data: new Date()
+        data: gerarDataAtual(),
+        calorias: Number(calorias),
+        intensidade: Number(intensidade),
+        anotacoes: anotacoes
       }
       await addDoc(atividadesCol, payload);
       // atualizar componente
@@ -69,7 +74,9 @@ export default function Atividades() {
       setNome('');
       setPercurso('');
       setTempo_min('');
-      setData('');
+      setCalorias('');
+      setIntensidade('');
+      setAnotacoes('');
     }
     catch (err) {
       console.log(err);
@@ -94,6 +101,18 @@ export default function Atividades() {
       console.log(err);
     }
   }
+
+  // gerar data atual
+  const gerarDataAtual = () => {
+    const dataAtual = new Date();
+    const dia = dataAtual.getDate();
+    const mes = dataAtual.getMonth() + 1;
+    const ano = dataAtual.getFullYear();
+    setData(`${dia}/${mes}/${ano}`); 
+    return data;
+  }
+
+
 
   return (
     <View style={styles.container}>
@@ -130,8 +149,8 @@ export default function Atividades() {
           value={calorias}
         />
 
-        <TextArea h={20} placeholder="Anotações"  maxW="600" />
-
+        <TextArea h={20} placeholder="Anotações" onChangeText={setAnotacoes} value={anotacoes}  maxW="600" />
+        
         <Button
           style={styles.botao}
           title="Adicionar"
@@ -148,7 +167,10 @@ export default function Atividades() {
               <Text style={styles.itemText}>Praticou: {item.nome}</Text>
               <Text style={styles.itemText}>Percurso: {item.percurso} metros</Text>
               <Text style={styles.itemText}>Tempo: {item.tempo_min} minutos</Text>
-              <Text style={styles.itemText}>Data: {item.data.toDate().toLocaleDateString()}</Text>
+              <Text style={styles.itemText}>Intensidade: {item.intensidade}</Text>
+              <Text style={styles.itemText}>Calorias: {item.calorias}</Text>
+              <Text style={styles.itemText} isTruncated maxW="300" w="80%">
+                Anotações: {item.anotacoes}</Text>
               <Button
                 title="Remover"
                 onPress={() => removerAtividade(item.id)}
