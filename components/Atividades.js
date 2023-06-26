@@ -11,8 +11,8 @@ import { useEffect } from "react";
 import { Input, CheckIcon, Select, TextArea, Text } from "native-base";
 import { getFirebaseConfig } from "../config/firebaseconfig";
 import {initializeApp} from "firebase/app";
-
-
+import { Cronometro } from "./Cronometro";
+import { set } from "react-native-reanimated";
 
 const firebaseAppConfig = getFirebaseConfig();
 initializeApp(firebaseAppConfig);
@@ -20,22 +20,10 @@ initializeApp(firebaseAppConfig);
 export default function Atividades() {
 
   const [atividades, setAtividades] = useState([]);
-  const [paginacao, setPaginacao] = useState(2);
 
-  useEffect(() => {
-    const loadAtividades = async () => {
-      const db = getFirestore();
-      const atividadesCol = collection(db, 'atividades');
-      const atividadesSnapshot = await getDocs(query(atividadesCol, limit(paginacao)));
-      const atividadesList = atividadesSnapshot.docs.map(doc => doc.data());
-      setAtividades(atividadesList);
-    }
-    loadAtividades();
-  }, [paginacao]);
-  
-  const handleLoadMore = () => {
-    setPaginacao(prevPaginacao => prevPaginacao + 2);
-  }
+  // Teste
+
+  // End Test
 
   // adiciona atividade no firebase
   const [nome, setNome] = useState('');
@@ -80,24 +68,31 @@ export default function Atividades() {
     }
   }
 
-  // remover atividade pelo id
-  const removerAtividade = async (id) => {
-    try {
-      const db = getFirestore();
-      const atividadesCol = collection(db, 'atividades');
-      const q = query(atividadesCol, where("id", "==", id));
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        deleteDoc(doc.ref);
-      });
-      // atualizar componente
-      const atividadesAtualizadas = atividades.filter(atividade => atividade.id !== id);
-      setAtividades(atividadesAtualizadas);
-    }
-    catch (err) {
-      console.log(err);
-    }
+  // Iniciar atividades com cronômetro e geolocalização
+  const [fire, setFire] = useState(false);
+
+  // const iniciarAtividade = () => {
+  //   // TODO
+  //   setFire(true);
+  // }
+
+  // parar atividade
+  const pararAtividade = () => {
+    // TODO
+
   }
+
+  // pausar atividade
+  const pausarAtividade = () => {
+    // TODO
+  }
+
+  // retomar atividade
+  const retomarAtividade = () => {
+    // TODO
+  }
+
+  
 
   // gerar data atual
   const gerarDataAtual = () => {
@@ -108,6 +103,8 @@ export default function Atividades() {
     setData(`${dia}/${mes}/${ano}`); 
     return data;
   }
+
+
 
 
   return (
@@ -149,35 +146,19 @@ export default function Atividades() {
         
         <Button
           style={styles.botao}
-          title="Adicionar"
+          title="Iniciar"
+          onPress={() => setFire(true)}
+        />
+
+        <Cronometro isRunning={fire} />
+
+        <Button
+          style={styles.botao}
+          title="Parar"
           onPress={adicionarAtividade}
         />
       </View>
-    
 
-      <View style={styles.lista}>
-        <FlatList
-          data={atividades}
-          renderItem={({ item }) => (
-            <View style={styles.item}>
-              <Text style={styles.itemText}>Praticou: {item.nome}</Text>
-              <Text style={styles.itemText}>Percurso: {item.percurso} metros</Text>
-              <Text style={styles.itemText}>Tempo: {item.tempo_min} minutos</Text>
-              <Text style={styles.itemText}>Intensidade: {item.intensidade}</Text>
-              <Text style={styles.itemText}>Calorias: {item.calorias}</Text>
-              <Text style={styles.itemText} isTruncated maxW="300" w="80%">
-                Anotações: {item.anotacoes}</Text>
-              <Button
-                title="Remover"
-                onPress={() => removerAtividade(item.id)}
-              />
-            </View>
-          )}
-          keyExtractor={(item) => item.id}
-        />
-        <Button onPress={handleLoadMore} title="Ver mais" />
-
-      </View>
     </View>
   );
 }
@@ -231,4 +212,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  relogio: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center"
+  }
 });
