@@ -1,5 +1,5 @@
 /* eslint-disable react/react-in-jsx-scope */
-import { View } from "react-native-web";
+import { View } from "react-native";
 import {
     LineChart  } from "react-native-chart-kit";
 import { useEffect, useState } from "react";
@@ -75,6 +75,7 @@ export default function Desempenho() {
         endIcon: <CheckIcon size="3" />
       }} mt={1} onValueChange={itemValue => setSelectedValue(itemValue)}>
           <Select.Item label="Caminhada" value="Caminhada" />
+          <Select.Item label="Corrida" value="Corrida" />
           <Select.Item label="Natação" value="Natação" />
           <Select.Item label="Futebol" value="Futebol" />
       </Select>

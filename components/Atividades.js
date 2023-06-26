@@ -1,8 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable react/react-in-jsx-scope */
-// Criar aplicativo expo que registra atividades esportivas e que ajude a acompanhar o progresso do usuário e treinos.
-// Registra atividades esportivas  
-
 import { useState } from "react";
 import { 
   View, 
@@ -11,12 +6,11 @@ import {
   FlatList,
 } from "react-native";
 
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore/lite';
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, query, where, limit } from 'firebase/firestore/lite';
 import { useEffect } from "react";
 import { Input, CheckIcon, Select, TextArea, Text } from "native-base";
 import { getFirebaseConfig } from "../config/firebaseconfig";
 import {initializeApp} from "firebase/app";
-import { set } from "react-native-reanimated";
 
 
 
@@ -26,17 +20,22 @@ initializeApp(firebaseAppConfig);
 export default function Atividades() {
 
   const [atividades, setAtividades] = useState([]);
-  // carregar atividades do firebase
+  const [paginacao, setPaginacao] = useState(2);
+
   useEffect(() => {
     const loadAtividades = async () => {
       const db = getFirestore();
       const atividadesCol = collection(db, 'atividades');
-      const atividadesSnapshot = await getDocs(atividadesCol);
+      const atividadesSnapshot = await getDocs(query(atividadesCol, limit(paginacao)));
       const atividadesList = atividadesSnapshot.docs.map(doc => doc.data());
       setAtividades(atividadesList);
     }
     loadAtividades();
-  }, []);
+  }, [paginacao]);
+  
+  const handleLoadMore = () => {
+    setPaginacao(prevPaginacao => prevPaginacao + 2);
+  }
 
   // adiciona atividade no firebase
   const [nome, setNome] = useState('');
@@ -46,8 +45,6 @@ export default function Atividades() {
   const [calorias, setCalorias] = useState('');
   const [anotacoes, setAnotacoes] = useState('');
   const [data, setData] = useState(new Date());
-
-  
 
   // adiciona atividade no firebase e atualiza a lista
   const adicionarAtividade = async () => {
@@ -113,13 +110,12 @@ export default function Atividades() {
   }
 
 
-
   return (
     <View style={styles.container}>
       <View style={styles.form}>
         <Select minWidth="200" accessibilityLabel="Tipo de modalidade" placeholder="Tipo de modalidade" _selectedItem={{
           bg: "teal.600",
-          endIcon: <CheckIcon size="3" />
+          endIcon: <CheckIcon size="3" />   
         }} mt={1} onValueChange={nome => setNome(nome)}>
             <Select.Item label="Caminhada" value="Caminhada" />
             <Select.Item label="Corrida" value="Corrida" />
@@ -179,6 +175,8 @@ export default function Atividades() {
           )}
           keyExtractor={(item) => item.id}
         />
+        <Button onPress={handleLoadMore} title="Ver mais" />
+
       </View>
     </View>
   );
