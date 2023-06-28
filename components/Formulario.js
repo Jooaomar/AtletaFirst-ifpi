@@ -5,13 +5,12 @@ import { getFirebaseConfig } from "../config/firebaseconfig";
 import {initializeApp} from "firebase/app";
 import { View, StyleSheet, Button} from "react-native";
 import Cronometro from "./Cronometro";
-import { useEffect } from "react";
 
 
 const firebaseAppConfig = getFirebaseConfig();
 initializeApp(firebaseAppConfig);
   
-export default function Atividades() {
+export default function Formulario() {
 
   const [atividades, setAtividades] = useState([]);
 
@@ -21,18 +20,15 @@ export default function Atividades() {
   const [intensidade, setIntensidade] = useState('');
   const [calorias, setCalorias] = useState('');
   const [anotacoes, setAnotacoes] = useState('');
-  const [isFinishedHandled, setIsFinishedHandled] = useState(false);
+
+  // receber estado de Cronometro.js se parou ou não
+  // se parou, adicionar atividade
+  const [parou, setParou] = useState(false);
+  
   
 
-  useEffect(() => {
-    setTempo_min(tempo_min);
-    console.log(tempo_min)
-
-  }, [tempo_min]);
-
-
   
-  const handleAdicionarAtividade = async () => {
+  const adicionarAtividade = async () => {
     try {
       const db = getFirestore();
       const atividadesCol = collection(db, 'atividades');
@@ -72,6 +68,16 @@ export default function Atividades() {
     return dataAtual;
   }
 
+  const handleMinutos = (minutos) => {
+    const newMin = minutos
+    setTempo_min(newMin);
+    console.log(tempo_min)
+  }
+
+  const handleStop = () => {
+    setParou(!parou);
+  }
+
 
 
   return (
@@ -86,38 +92,31 @@ export default function Atividades() {
             <Select.Item label="Natação" value="Natação" />
             <Select.Item label="Futebol" value="Futebol" />
         </Select>
-        {isFinishedHandled && (
-          <>
-            <Input
-              placeholder="Percurso em metros"
-              onChangeText={setPercurso}
-              value={percurso}
-            />
-            <Input
-              placeholder="Tempo em minutos"
-              // onChangeText={setTempo_min}
-              value={tempo_min}
-            />
+        <Input
+          placeholder="Percurso em metros"
+          onChangeText={setPercurso}
+          value={percurso}
+        />
+        <Input
+          placeholder="Tempo em minutos"
+          onChangeText={setTempo_min}
+          value={tempo_min}
+        />
 
-            <Input
-              placeholder="Intensidade de 1 a 5"
-              onChangeText={setIntensidade}
-              value={intensidade}
-            />
+        <Input
+          placeholder="Intensidade de 1 a 5"
+          onChangeText={setIntensidade}
+          value={intensidade}
+        />
 
-            <Input
-              placeholder="Calorias"
-              onChangeText={setCalorias}
-              value={calorias}
-            />
+        <Input
+          placeholder="Calorias"
+          onChangeText={setCalorias}
+          value={calorias}
+        />
 
-            <TextArea h={20} placeholder="Anotações" onChangeText={setAnotacoes} value={anotacoes}  maxW="600" />
+        <TextArea h={20} placeholder="Anotações" onChangeText={setAnotacoes} value={anotacoes}  maxW="600" />
 
-            <Button title="Adicionar atividade" onPress={handleAdicionarAtividade} />
-          </>
-        )}
-
-        <Cronometro setMin={setTempo_min} isFinishedHandled={isFinishedHandled} setIsFinishedHandled={setIsFinishedHandled} />
       </View>
     </View>
   );

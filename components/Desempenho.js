@@ -1,7 +1,5 @@
-/* eslint-disable react/react-in-jsx-scope */
 import { View } from "react-native";
-import {
-    LineChart  } from "react-native-chart-kit";
+import { LineChart  } from "react-native-chart-kit";
 import { useEffect, useState } from "react";
 import { Dimensions } from "react-native";
 import { Select, Center, CheckIcon, Text } from "native-base";
@@ -9,23 +7,17 @@ import { getFirestore, collection, getDocs, query, where, limit } from 'firebase
 
 
 export default function Desempenho() {
-  // eslint-disable-next-line no-unused-vars
+  
   const [atividades, setAtividades] = useState([]);
-
   const [selectedValue, setSelectedValue] = useState("");
-
-  // total de tempo gasto em cada atividade
   const [totalTempo, setTotalTempo] = useState(0);
-
   const [percurso, setPercurso] = useState(0);
-
-  // buscar dados no firebase com base em selectedValue 
 
   useEffect(() => {
     const loadAtividades = async () => {
       const db = getFirestore();
       const atividadesCol = collection(db, 'atividades');
-      // fazer query no firebase com limite de 2 resultados
+      
       const q = query(atividadesCol, where("nome", "==", selectedValue), limit(7));
 
       const atividadesSnapshot = await getDocs(q);
@@ -35,14 +27,14 @@ export default function Desempenho() {
       totalTempoGasto();
     }
     loadAtividades();
-  }, [selectedValue]); // atualiza quando selectedValue muda
+  }, [selectedValue]); 
 
   useEffect(() => {
     totalTempoGasto();
     totalPercurso();
-  }, [atividades]); // atualiza quando atividades muda
+  }, [atividades]); 
 
-  // função que recebe date = Timestamp(seconds,nanoseconds) formatar para dia/mes/ano
+  
   function formatDate(date) {
     const d = new Date(date.seconds * 1000);
     const day = d.getDate();
@@ -59,7 +51,7 @@ export default function Desempenho() {
     setTotalTempo(total);
   }
 
-  // calcula total de percurso
+  
   function totalPercurso() {
     let total = 0;
     atividades.forEach((atividade) => {
@@ -85,7 +77,7 @@ export default function Desempenho() {
         <Text>Total {totalTempo}</Text>
         <LineChart
           data={{
-            // condigurar dados do gráfico
+            
             labels: atividades.map((atividade) => formatDate(atividade.data)),
 
             datasets: [
@@ -96,16 +88,16 @@ export default function Desempenho() {
             ],
 
             }}
-            width={Dimensions.get("window").width} // from react-native
+            width={Dimensions.get("window").width} 
             height={220}
-            // yAxisLabel="$"
+            
             yAxisSuffix=" min"
-            yAxisInterval={1} // optional, defaults to 1
+            yAxisInterval={1} 
             chartConfig={{
             backgroundColor: "#e26a00",
             backgroundGradientFrom: "#fb8c00",
             backgroundGradientTo: "#ffa726",
-            decimalPlaces: 0, // optional, defaults to 2dp
+            decimalPlaces: 0, 
             color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             style: {
@@ -128,7 +120,7 @@ export default function Desempenho() {
         <Text>Total {percurso}</Text>
         <LineChart
           data={{
-            // condigurar dados do gráfico
+            
             labels: atividades.map((atividade) => formatDate(atividade.data)),
 
             datasets: [
@@ -139,16 +131,16 @@ export default function Desempenho() {
             ],
 
             }}
-            width={Dimensions.get("window").width} // from react-native
+            width={Dimensions.get("window").width} 
             height={220}
-            // yAxisLabel="$"
+            
             yAxisSuffix=" m"
-            yAxisInterval={1} // optional, defaults to 1
+            yAxisInterval={1} 
             chartConfig={{
             backgroundColor: "#e26a00",
             backgroundGradientFrom: "#fb8c00",
             backgroundGradientTo: "#ffa726",
-            decimalPlaces: 0, // optional, defaults to 2dp
+            decimalPlaces: 0, 
             color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             style: {

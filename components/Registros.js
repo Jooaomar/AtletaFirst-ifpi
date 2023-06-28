@@ -6,9 +6,9 @@ import {
   FlatList,
 } from "react-native";
 
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, query, where, limit } from 'firebase/firestore/lite';
+import { getFirestore, collection, getDocs, deleteDoc,  query, where, limit } from 'firebase/firestore/lite';
 import { useEffect } from "react";
-import { Input, CheckIcon, Select, TextArea, Text } from "native-base";
+import { Text } from "native-base";
 import { getFirebaseConfig } from "../config/firebaseconfig";
 import {initializeApp} from "firebase/app";
 
@@ -37,7 +37,7 @@ export default function Registros() {
     setPaginacao(prevPaginacao => prevPaginacao + 2);
   }
 
-  // remover atividade pelo id
+  
   const removerAtividade = async (id) => {
     try {
       const db = getFirestore();
@@ -47,23 +47,13 @@ export default function Registros() {
       querySnapshot.forEach((doc) => {
         deleteDoc(doc.ref);
       });
-      // atualizar componente
+      
       const atividadesAtualizadas = atividades.filter(atividade => atividade.id !== id);
       setAtividades(atividadesAtualizadas);
     }
     catch (err) {
       console.log(err);
     }
-  }
-
-  // gerar data atual
-  const gerarDataAtual = () => {
-    const dataAtual = new Date();
-    const dia = dataAtual.getDate();
-    const mes = dataAtual.getMonth() + 1;
-    const ano = dataAtual.getFullYear();
-    setData(`${dia}/${mes}/${ano}`); 
-    return data;
   }
 
 
